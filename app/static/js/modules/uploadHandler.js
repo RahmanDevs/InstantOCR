@@ -63,6 +63,27 @@ export function initUploadHandler() {
       resetUploadState();
     });
   }
+
+  // 6. Dukungan Paste dari Clipboard (Ctrl + V)
+  window.addEventListener("paste", (e) => {
+    const items = e.clipboardData?.items;
+    if (!items || !fileInput) return;
+
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.startsWith("image/")) {
+        const file = items[i].getAsFile();
+        if (file) {
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          fileInput.files = dataTransfer.files;
+
+          handleFileSelection(file);
+          showAlert("Gambar dari clipboard berhasil ditempelkan!", "info", 3500);
+          break;
+        }
+      }
+    }
+  });
 }
 
 function handleFileSelection(file) {
@@ -179,4 +200,10 @@ export function resetUploadState() {
   if (progressWrapper) progressWrapper.style.display = "none";
   if (progressFill) progressFill.style.width = "0%";
   if (progressText) progressText.textContent = "0%";
+
+  // Sembunyikan Hasil Ekstraksi
+  const resultCard = document.getElementById("resultCard");
+  if (resultCard) {
+    resultCard.classList.add("hidden");
+  }
 }
